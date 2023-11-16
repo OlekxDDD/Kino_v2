@@ -12,6 +12,7 @@ public class Action {
     static Scanner scanner = new Scanner(System.in);    //create object Scanner
     static String moviesSrc = "src/movies.txt"; // create src to movies
     static String ticketsSrc = "src/tickets.txt"; // create src to  tickets
+    static String roomsSrc = "src/rooms.txt"; // create src to rooms
     public static void WhatDo() throws IOException {
         System.out.println();
         System.out.println("What do you want to do");   //write instructors to user
@@ -24,7 +25,7 @@ public class Action {
         System.out.println("7 - List of Movie");
         System.out.println("8 - list of ticket in Movie");
         System.out.println("9 - list of Rooms");
-        System.out.println("10 - exit");
+        System.out.println("0 - exit");
         System.out.print(">>");
         String choiceString = scanner.nextLine();     //get choice of what user wat to do
         int choice = 0; // declare variable choice
@@ -54,7 +55,7 @@ public class Action {
             Action.listOfTicket();      //go to function listOfTicket
         }else if(choice == 9){
             Action.listOfRooms();   //go to function listOfRooms
-        }else if(choice == 10){
+        }else if(choice == 0){
             Action.exit();             //go to Object ExitStart to function exit()
         }else{
             System.out.println("you write wrong number"); // write instruction
@@ -137,8 +138,8 @@ public class Action {
         }else{
             System.out.println("Wrong room");   // write instruction to user
             Action.WhatDo();    //come back to What DO
+            scanner.nextLine();
         }
-        // TODO : przeskakuje do WhatDo i wpisuje 'writeNumber' wypisuje 'Not a number' i wypisuje jeszcze raz WhatDo xDD
 
         boolean roomExist = false;  // declare variable
 
@@ -326,10 +327,12 @@ public class Action {
     public static void start() throws IOException {
         File ticketFile = new File(ticketsSrc); // create object File
         File movieFile = new File(moviesSrc); // create object File
-        if(movieFile.exists() && ticketFile.exists()) {  // if both files exist
+        File roomFile = new File(roomsSrc); // create object File
+        if(roomFile.exists() && movieFile.exists() && ticketFile.exists()) {  // if everything files exist
 
             Scanner scannerMovie = new Scanner(movieFile);  //get object scanner from file
             Scanner scannerTicket = new Scanner(ticketFile);  //get object scanner from file
+            Scanner scannerRoom = new Scanner(roomFile);  //get object scanner from file
 
             while (scannerMovie.hasNext()) {    // if scanner movie has next line in file
                 String title = scannerMovie.nextLine(); // get title from scanner
@@ -365,8 +368,13 @@ public class Action {
                     }
                 }
             }
-            //TODO : dodaj import Room
 
+            while(scannerRoom.hasNext()){
+                int room = scannerRoom.nextInt();
+                Rooms.addRoom(room);
+            }
+
+            scannerRoom.close();    // end action Room
             scannerTicket.close();  // end action Ticket
             scannerMovie.close();  // end action Movie
         }else { // if files doesn't exist
@@ -375,16 +383,17 @@ public class Action {
         Action.WhatDo();    //come back to what do
     }
     static void exit() throws IOException {
-
         FileWriter writerTicket = new FileWriter(ticketsSrc);
         FileWriter writerMovie = new FileWriter(moviesSrc);
+        FileWriter writerRoom = new FileWriter(roomsSrc);
 
         writerTicket.write("");
         writerMovie.write("");
+        writerRoom.write("");
 
         PrintWriter writerMovies = new PrintWriter(new FileWriter(moviesSrc));
         PrintWriter writerTickets = new PrintWriter(new FileWriter(ticketsSrc));
-
+        PrintWriter writerRooms = new PrintWriter(new FileWriter(roomsSrc));
         writerMovies.flush();   //open write to file
 
         for (int i = 0; i < movies.size(); i++) {
@@ -403,7 +412,6 @@ public class Action {
             for (int j = 0; j < movie.tickets.size();j++) {
 
                 Ticket ticket = movie.tickets.get(j);
-
                 writerTickets.println(movie.title);
                 writerTickets.println(ticket.row);
                 writerTickets.println(ticket.seat);
@@ -413,7 +421,13 @@ public class Action {
         }
         writerTickets.close();
 
-        //TODO : dodaj export Room
+        writerRooms.flush();
+        for (int i = 0; i < Rooms.rooms.size(); i++) {
+            writerRooms.println(Rooms.rooms.get(i));
+        }
+        writerRooms.close();
+
+        System.exit(0);
     }
     private static boolean checkDate(@NotNull String data) throws IOException {
         boolean dayOkey = false;    // set flag as false
@@ -465,3 +479,5 @@ public class Action {
         return str.matches("\\d+");
     }
 }
+
+// TODO : przeskakuje do WhatDo i wpisuje 'writeNumber' wypisuje 'Not a number' i wypisuje jeszcze raz WhatDo xDD
